@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/auth-context"
@@ -43,7 +42,13 @@ export default function LoginPage() {
         <p className="text-sm opacity-80 mb-6">Masuk ke akun Anda</p>
 
         <form onSubmit={handleLogin} className="space-y-4">
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
           <Input
             type="password"
             placeholder="Password"
@@ -51,6 +56,15 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          <div className="text-right">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-primary hover:underline"
+            >
+              Lupa password?
+            </Link>
+          </div>
 
           {error && <div className="text-sm text-destructive">{error}</div>}
 

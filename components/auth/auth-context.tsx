@@ -52,7 +52,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const LS_KEY = "glowmall:token"
+const AUTH_TOKEN_KEY = "glowmall:token"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -63,14 +63,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Try both new and legacy keys so other parts of the app (gm_*) work
-        const savedToken = localStorage.getItem(LS_KEY) || localStorage.getItem('gm_token')
+        const savedToken = localStorage.getItem(AUTH_TOKEN_KEY)
         console.log("[v0] Auth init - saved token:", savedToken ? "exists" : "none")
         if (savedToken) {
           setToken(savedToken)
           const response = await fetch(`${API_BASE_URL}/auth/me`, {
             headers: {
               Authorization: `Bearer ${savedToken}`,
+              Accept: "application/json",
             },
           })
           if (response.ok) {
@@ -102,15 +102,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             })
           } else {
             console.log("[v0] Auth init - token invalid, clearing")
-            localStorage.removeItem(LS_KEY)
-            try { localStorage.removeItem('gm_token') } catch (e) {}
+            localStorage.removeItem(AUTH_TOKEN_KEY)
             setToken(null)
           }
         }
       } catch (error) {
         console.error("[v0] Auth initialization error:", error)
-        localStorage.removeItem(LS_KEY)
-        try { localStorage.removeItem('gm_token') } catch (e) {}
+        localStorage.removeItem(AUTH_TOKEN_KEY)
         setToken(null)
       } finally {
         setLoading(false)
@@ -123,11 +121,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!loading) {
       if (token) {
-        try { localStorage.setItem(LS_KEY, token) } catch (e) {}
-        try { localStorage.setItem('gm_token', token) } catch (e) {}
+        localStorage.setItem(AUTH_TOKEN_KEY, token)
       } else {
-        try { localStorage.removeItem(LS_KEY) } catch (e) {}
-        try { localStorage.removeItem('gm_token') } catch (e) {}
+        localStorage.removeItem(AUTH_TOKEN_KEY)
       }
     }
   }, [token, loading])
@@ -191,8 +187,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             throw new Error("Invalid response from server")
           }
 
-          const authToken = data.token || data.access_token || data.data?.token
-          const userData = data.user || data.data?.user || data.data
+          const authToken = data.access_token
+          const userData = data.user
 
           console.log("[v0] Extracted token:", authToken ? "exists" : "missing")
           console.log("[v0] Extracted user:", userData)
@@ -225,12 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           setUser(newUser)
-          try {
-            localStorage.setItem('gm_token', authToken)
-            localStorage.setItem('gm_user', JSON.stringify(newUser))
-          } catch (e) {}
           
-
           console.log("[v0] === SIGNUP COMPLETE ===")
         } catch (error) {
           console.error("[v0] === SIGNUP EXCEPTION ===")
@@ -262,8 +253,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await response.json()
         console.log("[v0] Login success, data:", data)
 
-        const authToken = data.token || data.access_token
-        const userData = data.user || data.data
+        const authToken = data.access_token
+        const userData = data.user
 
         if (!authToken) {
           throw new Error("No token received from server")
@@ -294,11 +285,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser(loggedInUser)
-        try {
-          localStorage.setItem('gm_token', authToken)
-          localStorage.setItem('gm_user', JSON.stringify(loggedInUser))
-        } catch (e) {}
-
         console.log("[v0] Login complete - token and user set")
       },
       adminLogin: async (email: string, password: string) => {
@@ -314,7 +300,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const data = await response.json()
-        setToken(data.token)
+        setToken(data.access_token)
         const adminUser = {
           id: data.user.id?.toString(),
           email: data.user.email,
@@ -339,10 +325,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser(adminUser)
-        try {
-          localStorage.setItem('gm_token', data.token)
-          localStorage.setItem('gm_user', JSON.stringify(adminUser))
-        } catch (e) {}
       },
       logout: async () => {
         if (token) {
@@ -351,6 +333,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}`,
+                Accept: "application/json",
               },
             })
           } catch (error) {
@@ -359,10 +342,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(null)
         setToken(null)
-        try {
-          localStorage.removeItem('gm_token')
-          localStorage.removeItem('gm_user')
-        } catch (e) {}
       },
       updateProfile: async (data) => {
       if (!user || !token) return

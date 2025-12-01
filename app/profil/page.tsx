@@ -150,11 +150,6 @@ export default function ProfilPage() {
             )}
           </div>
 
-          <div>
-            <Label>User ID</Label>
-            <Input value={user.id} disabled className="mt-1" />
-          </div>
-
           <div className="flex gap-3 pt-4">
             {isEditing ? (
               <>
