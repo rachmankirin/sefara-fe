@@ -8,7 +8,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Email and password required" }, { status: 400 })
     }
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
     const response = await fetch(`${API_BASE}/admin/login`, {
       method: "POST",
       headers: {

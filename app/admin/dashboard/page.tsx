@@ -28,7 +28,7 @@ interface DashboardStats {
   lowStockProducts: any[]
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -126,7 +126,6 @@ export default function AdminDashboard() {
     { icon: Tag, label: "Brand", href: "/admin/brands", color: "bg-blue-500/10 text-blue-600" },
     { icon: Package, label: "Produk", href: "/admin/products", color: "bg-purple-500/10 text-purple-600" },
     { icon: Users, label: "Pengguna", href: "/admin/users", color: "bg-green-500/10 text-green-600" },
-    { icon: ShoppingCart, label: "Keranjang", href: "/admin/carts", color: "bg-orange-500/10 text-orange-600" },
     { icon: ShoppingCart, label: "Pesanan", href: "/admin/orders", color: "bg-red-500/10 text-red-600" },
   ]
 

@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/auth/auth-context"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 export function useApi() {
   const { token } = useAuth()

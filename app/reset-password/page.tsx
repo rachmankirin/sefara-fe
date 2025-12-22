@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
       console.log("[ResetPassword] Using token:", token)
       
       // Call Laravel API endpoint
-      const response = await fetch('http://localhost:8000/api/reset-password', {
+      const response = await fetch('https://be.sefara.my.id/api/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

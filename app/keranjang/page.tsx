@@ -1,47 +1,25 @@
 "use client"
 
+import { useAuth } from "@/components/auth/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import useSWR from "swr"
+import Script from "next/script"
 
-const API_BASE = "http://localhost:8000/api"
-
-async function fetcher(url: string) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("gm_token") : null
-  const res = await fetch(url, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  })
-  if (!res.ok) throw new Error("Failed to fetch")
-  return res.json()
-}
-
-interface Province {
-  id: string
-  name: string
-}
-
-interface City {
-  id: string
-  name: string
-}
-
-interface District {
-  id: string
-  name: string
-}
-
-interface ShippingCost {
-  name: string
-  code: string
-  service: string
-  description: string
-  etd: string
-  cost: number // Make sure this matches the API response
-}
+const API_BASE = "https://be.sefara.my.id/api"
 
 export default function KeranjangPage() {
   const router = useRouter()
-  const [userId, setUserId] = useState<string | null>(null)
+  const { user, token } = useAuth()
+
+  const fetcher = async (url: string) => {
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+    if (!res.ok) throw new Error("Failed to fetch")
+    return res.json()
+  }
+
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set())
   
   // Shipping states
@@ -56,57 +34,23 @@ export default function KeranjangPage() {
   const [isLoadingShipping, setIsLoadingShipping] = useState(false)
   const [showShippingSection, setShowShippingSection] = useState(false)
   const [userAddress, setUserAddress] = useState<any>(null)
+  const [isSnapLoaded, setIsSnapLoaded] = useState(false)
 
   useEffect(() => {
-    const restoreOrRedirect = async () => {
-      const userRaw = typeof window !== "undefined" ? localStorage.getItem("gm_user") : null
-      if (userRaw) {
-        try {
-          const user = JSON.parse(userRaw)
-          setUserId(user.id)
-          return
-        } catch (e) {
-          // fallthrough to try token
-        }
-      }
-
-      const token = typeof window !== "undefined" ? localStorage.getItem("gm_token") : null
-      if (token) {
-        try {
-          const resp = await fetch(`${API_BASE}/auth/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          if (resp.ok) {
-            const data = await resp.json()
-            const userObj = data.data || data.user || data
-            try { localStorage.setItem("gm_user", JSON.stringify(userObj)) } catch (e) {}
-            setUserId(userObj.id)
-            
-            // Fetch user address after getting user ID
-            if (userObj.id) {
-              fetchUserAddress(userObj.id, token)
-            }
-            
-            return
-          }
-        } catch (e) {
-          // ignore and fallthrough to redirect
-        }
-      }
-
+    if (!user) {
       try {
         localStorage.setItem("gm_post_login_redirect", "/keranjang")
       } catch (e) {}
       router.push("/login")
+    } else if (user && token) {
+      fetchUserAddress(user.id, token)
     }
+  }, [user, token, router])
 
-    restoreOrRedirect()
-  }, [router])
-
-  const fetchUserAddress = async (currentUserId: string, token: string) => {
+  const fetchUserAddress = async (currentUserId: string, authToken: string) => {
     try {
       const addressResp = await fetch(`${API_BASE}/user-address/${currentUserId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${authToken}` },
       })
       if (addressResp.ok) {
         const addressData = await addressResp.json()
@@ -126,7 +70,6 @@ export default function KeranjangPage() {
   useEffect(() => {
     const loadProvinces = async () => {
       try {
-        const token = localStorage.getItem("gm_token")
         if (!token) {
           console.error("No token found")
           return
@@ -154,18 +97,17 @@ export default function KeranjangPage() {
       }
     }
 
-    if (userId) {
+    if (user) {
       loadProvinces()
     }
-  }, [userId, router])
+  }, [user, token, router])
 
-  const { data: cartData, error, mutate } = useSWR(userId ? `${API_BASE}/cart` : null, fetcher)
+  const { data: cartData, error, mutate } = useSWR(user ? `${API_BASE}/cart` : null, fetcher)
 
   const cartItems = cartData?.data?.items || []
 
   async function removeItem(cartItemId: string) {
     try {
-      const token = localStorage.getItem("gm_token")
       await fetch(`${API_BASE}/cart/items/${cartItemId}`, {
         method: "DELETE",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -182,7 +124,6 @@ export default function KeranjangPage() {
     setUpdatingItems(prev => new Set(prev).add(cartItemId))
     
     try {
-      const token = localStorage.getItem("gm_token")
       const response = await fetch(`${API_BASE}/cart/items/${cartItemId}`, {
         method: "PUT",
         headers: {
@@ -239,7 +180,6 @@ export default function KeranjangPage() {
       }
 
       try {
-        const token = localStorage.getItem("gm_token")
         if (!token) {
           console.error("No token found")
           return
@@ -270,7 +210,7 @@ export default function KeranjangPage() {
     }
 
     loadCities()
-  }, [selectedProvince, userAddress])
+  }, [selectedProvince, userAddress, token])
 
   // Load districts when city is selected
   useEffect(() => {
@@ -287,7 +227,6 @@ export default function KeranjangPage() {
       }
 
       try {
-        const token = localStorage.getItem("gm_token")
         if (!token) {
           console.error("No token found")
           return
@@ -318,7 +257,7 @@ export default function KeranjangPage() {
     }
 
     loadDistricts()
-  }, [selectedCity, userAddress])
+  }, [selectedCity, userAddress, token])
 
  async function calculateShipping() {
   if (!selectedDistrict || !selectedCourier || cartItems.length === 0) {
@@ -330,7 +269,6 @@ export default function KeranjangPage() {
   setShippingCosts([])
 
   try {
-    const token = localStorage.getItem("gm_token")
     if (!token) {
       alert("Silakan login terlebih dahulu")
       router.push("/login")
@@ -388,38 +326,126 @@ export default function KeranjangPage() {
 }
 
   const total = cartData?.data?.total ? parseFloat(cartData.data.total) : 0
+  const cartId = cartData?.data?.id
   const [selectedShipping, setSelectedShipping] = useState<ShippingCost | null>(null)
   const grandTotal = total + (selectedShipping?.cost || 0)
 
-  function handleCheckout() {
+  async function handleCheckout() {
     if (!cartItems || cartItems.length === 0) return
-    const userRaw = typeof window !== "undefined" ? localStorage.getItem("gm_user") : null
-    if (!userRaw) {
+    if (!user || !token) {
       try {
-        localStorage.setItem("gm_post_login_redirect", "/checkout")
+        localStorage.setItem("gm_post_login_redirect", "/keranjang")
       } catch (e) {}
       router.push("/login")
       return
     }
-    
-    // Pass shipping information to checkout if available
-    const checkoutData = {
-      shipping: selectedShipping ? {
-        province: selectedProvince,
-        city: selectedCity,
-        district: selectedDistrict,
-        courier: selectedCourier,
-        cost: selectedShipping.cost,
-        shippingService: selectedShipping.service,
-        shippingEtd: selectedShipping.etd,
-      } : null
+
+    if (!cartId) {
+      alert("Keranjang tidak valid. Muat ulang halaman.")
+      return
     }
-    
+
+    if (!selectedShipping) {
+      alert("Silakan pilih layanan pengiriman terlebih dahulu.")
+      return
+    }
+
     try {
-      localStorage.setItem("gm_checkout_data", JSON.stringify(checkoutData))
-    } catch (e) {}
-    
-    router.push("/checkout")
+      // 1) Create checkout record in backend
+      const checkoutRes = await fetch(`${API_BASE}/checkout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          cart_id: cartId,
+          shipping_cost: selectedShipping.cost,
+          shipping_courier: selectedCourier,
+          shipping_service: selectedShipping.service,
+          shipping_address:
+            user?.address ||
+            `${selectedDistrict || ""}, ${selectedCity || ""}, ${selectedProvince || ""}`,
+        }),
+      })
+
+      if (!checkoutRes.ok) {
+        const text = await checkoutRes.text()
+        console.error("Checkout failed", checkoutRes.status, text)
+        alert("Gagal membuat checkout. Coba lagi.")
+        return
+      }
+
+      const checkoutJson = await checkoutRes.json()
+      console.log("Checkout Response:", checkoutJson) // Debug log
+
+      const checkoutData = checkoutJson.data
+      const snapToken = checkoutJson.snap_token
+
+      if (!snapToken) {
+        console.error("Snap token missing in response", checkoutJson)
+        alert("Gagal mendapatkan token pembayaran.")
+        return
+      }
+
+      if (!isSnapLoaded) {
+        console.warn("Snap.js not loaded yet")
+        // Try to check if window.snap exists anyway
+        if (typeof window !== "undefined" && (window as any).snap) {
+           console.log("Snap found on window even if onLoad didn't fire")
+        } else {
+           alert("Sistem pembayaran belum siap. Tunggu sebentar dan coba lagi.")
+           return
+        }
+      }
+
+      if (typeof window === "undefined" || !(window as any).snap) {
+        console.error("Snap.js object not found on window")
+        alert("Library pembayaran tidak ditemukan. Refresh halaman.")
+        return
+      }
+
+      console.log("Opening Snap with token:", snapToken)
+
+      // 3) Open Midtrans Snap popup
+      ;(window as any).snap.pay(snapToken, {
+        onSuccess: async function (result: any) {
+          console.log("Payment success", result)
+          
+          // Sync status with backend immediately
+          try {
+            console.log("Syncing status with backend...")
+            const syncRes = await fetch(`${API_BASE}/payments/${checkoutData.id}/sync`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+            const syncData = await syncRes.json()
+            console.log("Sync result:", syncData)
+          } catch (e) {
+            console.error("Failed to sync status", e)
+          }
+
+          mutate() // refresh cart
+          router.push("/pesanan")
+        },
+        onPending: function (result: any) {
+          console.log("Payment pending", result)
+          router.push("/pesanan")
+        },
+        onError: function (result: any) {
+          console.error("Payment error", result)
+          alert("Terjadi kesalahan saat memproses pembayaran.")
+        },
+        onClose: function () {
+          // user closed the popup, do nothing
+        },
+      })
+    } catch (e) {
+      console.error("Checkout/Midtrans error", e)
+      alert("Terjadi kesalahan saat memproses checkout.")
+    }
   }
 
   if (error) return <div className="mx-auto max-w-6xl px-4 py-8">Error loading cart</div>
@@ -427,6 +453,14 @@ export default function KeranjangPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <Script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js" 
+        data-client-key="Mid-client-Ohk1pccsXPbjPbRO"
+        onLoad={() => {
+          console.log("Snap.js loaded")
+          setIsSnapLoaded(true)
+        }}
+      />
       <h1 className="text-2xl font-semibold mb-6">Keranjang</h1>
       
       {cartItems.length === 0 ? (
@@ -446,7 +480,7 @@ export default function KeranjangPage() {
               const imageUrl = item.product?.image_url
                 ? item.product.image_url.startsWith("http")
                   ? item.product.image_url
-                  : `http://localhost:8000${item.product.image_url}`
+                  : `https://be.sefara.my.id${item.product.image_url}`
                 : "/placeholder.svg"
 
               const isUpdating = updatingItems.has(item.id)
@@ -531,7 +565,7 @@ export default function KeranjangPage() {
                     </option>
                   ))}
                 </select>
-                {provinces.length === 0 && userId && (
+                {provinces.length === 0 && user && (
                   <p className="text-xs text-gray-500 mt-1">Memuat data provinsi...</p>
                 )}
               </div>

@@ -8,7 +8,7 @@ import { useLocalSWR } from "@/lib/swr-local"
 import { Star, Truck, Shield, RotateCcw, ShoppingCart } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-context"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
@@ -21,10 +21,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   const getImageUrl = (product: any) => {
     if (product.image_url) {
-      return product.image_url.startsWith("http") ? product.image_url : `http://localhost:8000${product.image_url}`
+      return product.image_url.startsWith("http") ? product.image_url : `https://be.sefara.my.id${product.image_url}`
     }
     if (product.image) {
-      return product.image.startsWith("http") ? product.image : `http://localhost:8000${product.image}`
+      return product.image.startsWith("http") ? product.image : `https://be.sefara.my.id${product.image}`
     }
     return "/placeholder.svg"
   }
@@ -452,7 +452,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
           {/* Reviews Section */}
           <section className="mt-12">
-            <ProductReviews slug={product.slug} />
+            <ProductReviews productId={product.id} slug={product.slug} />
           </section>
         </div>
       </div>

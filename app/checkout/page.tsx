@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import useSWR from "swr"
 
-const API_BASE = "http://localhost:8000/api"
+const API_BASE = "https://be.sefara.my.id/api"
 
 async function fetcher(url: string) {
   const token = typeof window !== "undefined" ? localStorage.getItem("gm_token") : null

@@ -17,7 +17,6 @@ export function AdminSidebar() {
     { icon: Package, label: "Products", href: "/admin/products" },
     { icon: Users, label: "Users", href: "/admin/users" },
     { icon: ShoppingCart, label: "Orders", href: "/admin/orders" },
-    { icon: Settings, label: "Settings", href: "/admin/settings" },
   ]
 
   return (

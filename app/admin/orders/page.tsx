@@ -19,7 +19,7 @@ interface Order {
   email?: string
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 export default function OrdersPage() {
   const router = useRouter()
@@ -46,14 +46,28 @@ export default function OrdersPage() {
     try {
       const query = statusFilter ? `?status=${statusFilter}` : ""
       const token = localStorage.getItem("glowmall:token")
-      const res = await fetch(`${API_BASE}/orders${query}`, {
+      const res = await fetch(`${API_BASE}/checkouts${query}`, {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       })
-      const data = await res.json()
-      setOrders(Array.isArray(data) ? data : data.data || [])
+      const json = await res.json()
+      // Handle Laravel pagination: { data: { data: [...] } }
+      const rawData = json.data?.data || json.data || []
+      const list = Array.isArray(rawData) ? rawData : []
+      
+      const mapped = list.map((item: any) => ({
+        id: String(item.id),
+        userId: String(item.user_id),
+        status: item.status,
+        total: Number(item.total_amount || item.total || 0),
+        createdAt: item.created_at,
+        items: item.items?.length || 0,
+        customerName: item.user?.name || "Unknown",
+        email: item.user?.email || "-",
+      }))
+      setOrders(mapped)
     } catch (err) {
       console.error("Error fetching orders:", err)
     } finally {
@@ -65,7 +79,7 @@ export default function OrdersPage() {
     if (!newStatus) return
     try {
       const token = localStorage.getItem("glowmall:token")
-      const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+      const res = await fetch(`${API_BASE}/checkouts/${orderId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -83,31 +97,18 @@ export default function OrdersPage() {
     }
   }
 
-  const handleDeleteOrder = async (id: string) => {
-    if (!confirm("Yakin ingin menghapus pesanan ini?")) return
-    try {
-      const token = localStorage.getItem("glowmall:token")
-      const res = await fetch(`${API_BASE}/orders/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      })
-      if (res.ok) fetchOrders()
-    } catch (err) {
-      console.error("Error deleting order:", err)
-    }
-  }
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-      case "completed":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-      case "shipped":
+      case "processing":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+      case "shipped":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
+      case "delivered":
+        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
       case "cancelled":
         return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
       default:
@@ -139,8 +140,9 @@ export default function OrdersPage() {
             >
               <option value="">Semua Status</option>
               <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>
-              <option value="completed">Completed</option>
+              <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
@@ -174,8 +176,9 @@ export default function OrdersPage() {
                             >
                               <option value="">Pilih Status</option>
                               <option value="pending">Pending</option>
+                              <option value="processing">Processing</option>
                               <option value="shipped">Shipped</option>
-                              <option value="completed">Completed</option>
+                              <option value="delivered">Delivered</option>
                               <option value="cancelled">Cancelled</option>
                             </select>
                             <Button size="sm" onClick={() => handleUpdateStatus(order.id)} className="h-8">
@@ -218,15 +221,7 @@ export default function OrdersPage() {
                         <Edit2 className="h-4 w-4" />
                         Edit
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteOrder(order.id)}
-                        className="gap-2"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Hapus
-                      </Button>
+
                     </div>
                   </div>
                 </Card>

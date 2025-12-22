@@ -17,7 +17,7 @@ interface CartItem {
   price?: number
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 export default function CartsPage() {
   const router = useRouter()

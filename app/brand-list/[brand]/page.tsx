@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Card } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 function slugify(input: string) {
   return input
@@ -57,7 +57,7 @@ export default function BrandProductsPage({ params }: { params: { brand: string 
       try {
         console.log("[v0] Fetching brand with slug:", brandSlug)
 
-        const brandRes = await fetch(`http://localhost:8000/api/brands/slug/${brandSlug}`)
+        const brandRes = await fetch(`https://be.sefara.my.id/api/brands/slug/${brandSlug}`)
 
         if (!brandRes.ok) {
           console.error("[v0] Brand fetch failed:", brandRes.status)
@@ -168,11 +168,11 @@ export default function BrandProductsPage({ params }: { params: { brand: string 
     
     // If it starts with /storage/, construct the full URL
     if (imageUrl.startsWith("/storage/")) {
-      return `http://localhost:8000${imageUrl}`
+      return `https://be.sefara.my.id${imageUrl}`
     }
     
     // For any other relative paths, prepend the API base URL
-    return `http://localhost:8000${imageUrl}`
+    return `https://be.sefara.my.id${imageUrl}`
   }
 
   if (loading) {

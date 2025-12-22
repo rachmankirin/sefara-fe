@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 
 type SortKey = "relevan" | "harga-asc" | "harga-desc" | "skor-desc" | "skor-asc"
 const PER_PAGE = 12
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 // Helper function to parse JSON fields
 const parseJsonField = (field: any): string[] => {

@@ -61,7 +61,7 @@ interface Ingredient {
 // Fix API base URL - ensure it doesn't have trailing slash
 const API_BASE = process.env.NEXT_PUBLIC_API_URL 
   ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')
-  : "http://localhost:8000/api"
+  : "https://be.sefara.my.id/api"
 
 // Helper function to parse JSON fields
 const parseJsonField = (field: any): string[] => {
@@ -781,31 +781,6 @@ const handleAddProduct = async (e: React.FormEvent) => {
             </div>
 
             {/* New Ingredient Creation */}
-            <div className="border-t pt-4">
-              <label className="block text-sm font-medium mb-2">Buat Bahan Baru</label>
-              <div className="space-y-2 mb-4">
-                <Input
-                  placeholder="Nama Bahan (contoh: Vitamin C)"
-                  value={newIngredientName}
-                  onChange={(e) => setNewIngredientName(e.target.value)}
-                />
-                <Input
-                  placeholder="Manfaat (contoh: Mencerahkan kulit)"
-                  value={newIngredientBenefits}
-                  onChange={(e) => setNewIngredientBenefits(e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCreateIngredient}
-                  disabled={creatingIngredient || !newIngredientName.trim()}
-                  className="gap-2 bg-transparent"
-                >
-                  <Plus className="h-4 w-4" />
-                  {creatingIngredient ? "Membuat..." : "Buat Bahan"}
-                </Button>
-              </div>
-            </div>
 
             <div className="flex gap-2">
               <Button type="submit" className="gap-2" disabled={submitLoading}>

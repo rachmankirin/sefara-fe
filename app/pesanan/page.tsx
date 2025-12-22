@@ -2,102 +2,186 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Package, Truck, CheckCircle2, Clock } from "lucide-react"
+import { Package, Truck, CheckCircle2, Clock, XCircle } from "lucide-react"
+import { useApi } from "@/hooks/use-api"
 
 type OrderItem = { slug: string; name: string; price: number; image?: string; qty: number }
-type Order = { id: string; createdAt: string; items: OrderItem[]; total: number; status?: string }
+type Order = {
+  id: string
+  createdAt: string
+  items: OrderItem[]
+  total: number
+  status?: string
+  shippingCost?: number
+  shippingCourier?: string
+  shippingService?: string
+}
+
+type CheckoutItemApi = {
+  id: number
+  product_id?: number
+  product?: {
+    id: number
+    slug?: string
+    name?: string
+    image?: string
+    image_url?: string
+  } | null
+  quantity?: number
+  qty?: number
+  unit_price?: number | string
+  price?: number | string
+  subtotal?: number | string
+}
+
+type CheckoutApi = {
+  id: number
+  created_at?: string
+  createdAt?: string
+  status?: string
+  subtotal?: number | string
+  shipping_cost?: number | string
+  shipping_courier?: string
+  shipping_service?: string
+  total_amount?: number | string
+  total?: number | string
+  grand_total?: number | string
+  items?: CheckoutItemApi[]
+}
+
+type PaginatedLaravel<T> = {
+  data: T[]
+  current_page?: number
+  per_page?: number
+  total?: number
+}
+
+function extractCheckoutList(json: unknown): CheckoutApi[] {
+  if (Array.isArray(json)) return json as CheckoutApi[]
+
+  if (json && typeof json === "object") {
+    const obj: any = json
+
+    // Our backend currently returns: { data: <paginator> }
+    const maybePaginator = obj.data
+    if (Array.isArray(maybePaginator)) return maybePaginator as CheckoutApi[]
+    if (maybePaginator && typeof maybePaginator === "object" && Array.isArray(maybePaginator.data)) {
+      return maybePaginator.data as CheckoutApi[]
+    }
+
+    // Fallbacks for common wrappers
+    if (Array.isArray(obj.checkouts)) return obj.checkouts as CheckoutApi[]
+    if (obj.checkouts && typeof obj.checkouts === "object" && Array.isArray(obj.checkouts.data)) {
+      return obj.checkouts.data as CheckoutApi[]
+    }
+  }
+
+  return []
+}
+
+function pick<T>(...values: Array<T | undefined | null>): T | undefined {
+  return values.find((v) => v !== undefined && v !== null)
+}
+
+function toNumber(value: unknown, fallback = 0): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value
+  if (typeof value === "string") {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : fallback
+  }
+  return fallback
+}
+
+function mapCheckoutStatus(status?: string): "pending" | "processing" | "shipped" | "delivered" | "cancelled" {
+  // Backend status might be: 'pending', 'paid', 'processing', 'shipped', 'delivered', etc.
+  const s = (status || "pending").toLowerCase()
+  if (["delivered", "completed", "done", "received"].includes(s)) return "delivered"
+  if (["shipped", "shipping", "sent"].includes(s)) return "shipped"
+  if (["processing", "process"].includes(s)) return "processing"
+  if (["cancelled", "canceled", "void", "expired"].includes(s)) return "cancelled"
+  return "pending"
+}
+
+function mapCheckoutToOrder(checkout: CheckoutApi): Order {
+  const items = (checkout.items || []).map((it) => {
+    const slug = pick(it.product?.slug, String(it.product_id || "")) || ""
+    return {
+      slug,
+      name: pick(it.product?.name, "Produk") || "Produk",
+      price: toNumber(pick(it.unit_price, it.price, 0), 0),
+      image: pick(it.product?.image_url, it.product?.image),
+      qty: toNumber(pick(it.quantity, it.qty, 1), 1),
+    }
+  })
+
+  const total = toNumber(pick(checkout.total_amount, checkout.grand_total, checkout.total, 0), 0)
+  const createdAt = pick(checkout.created_at, checkout.createdAt) || new Date().toISOString()
+
+  return {
+    id: String(checkout.id),
+    createdAt,
+    items,
+    total,
+    status: mapCheckoutStatus(checkout.status),
+    shippingCost: toNumber(checkout.shipping_cost, 0),
+    shippingCourier: checkout.shipping_courier,
+    shippingService: checkout.shipping_service,
+  }
+}
 
 export default function PesananPage() {
   const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { apiCall } = useApi()
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("gm_orders")
-      let list = raw ? (JSON.parse(raw) as Order[]) : []
+    let mounted = true
 
-      if (list.length === 0) {
-        list = [
-          {
-            id: "ORD-20250103-001",
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "delivered",
-            items: [
-              {
-                slug: "cleanser-gentle-gel",
-                name: "Gentle Gel Cleanser",
-                price: 89000,
-                image: "/cleanser-gentle-gel.jpg",
-                qty: 1,
-              },
-              {
-                slug: "soothing-toner",
-                name: "Soothing Toner",
-                price: 79000,
-                image: "/soothing-toner.jpg",
-                qty: 2,
-              },
-            ],
-            total: 247000,
-          },
-          {
-            id: "ORD-20250102-001",
-            createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "shipped",
-            items: [
-              {
-                slug: "niacinamide-serum",
-                name: "Niacinamide Serum 10%",
-                price: 129000,
-                image: "/niacinamide-serum.jpg",
-                qty: 1,
-              },
-              {
-                slug: "hyaluronic-acid-serum",
-                name: "Hyaluronic Acid Serum",
-                price: 99000,
-                image: "/hyaluronic-acid-serum.jpg",
-                qty: 1,
-              },
-            ],
-            total: 228000,
-          },
-          {
-            id: "ORD-20250101-001",
-            createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-            status: "processing",
-            items: [
-              {
-                slug: "ceramide-cream",
-                name: "Ceramide Cream",
-                price: 149000,
-                image: "/ceramide-cream.png",
-                qty: 1,
-              },
-              {
-                slug: "sunscreen-spf50",
-                name: "Sunscreen SPF 50",
-                price: 119000,
-                image: "/sunscreen-spf50.png",
-                qty: 1,
-              },
-            ],
-            total: 268000,
-          },
-        ]
+    async function load() {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await apiCall(`/checkouts`)
+        if (!res.ok) {
+          const text = await res.text()
+          throw new Error(text || `HTTP ${res.status}`)
+        }
+
+        const json = (await res.json()) as unknown
+        const rows = extractCheckoutList(json)
+        const mapped = rows.map(mapCheckoutToOrder)
+
+        if (mounted) setOrders(mapped)
+      } catch (e: any) {
+        if (mounted) {
+          setOrders([])
+          setError(e?.message || "Gagal memuat pesanan")
+        }
+      } finally {
+        if (mounted) setLoading(false)
       }
+    }
 
-      const ordersWithStatus = list.map((o) => ({ ...o, status: o.status || "processing" }))
-      setOrders(ordersWithStatus)
-    } catch {
-      setOrders([])
+    load()
+
+    return () => {
+      mounted = false
     }
   }, [])
 
   const getStatusInfo = (status: string) => {
     switch (status) {
-      case "processing":
+      case "pending":
         return {
           icon: Clock,
+          label: "Menunggu",
+          color: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+          borderColor: "border-gray-200 dark:border-gray-700",
+        }
+      case "processing":
+        return {
+          icon: Package,
           label: "Diproses",
           color: "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400",
           borderColor: "border-blue-200 dark:border-blue-800",
@@ -115,6 +199,13 @@ export default function PesananPage() {
           label: "Terima",
           color: "bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400",
           borderColor: "border-green-200 dark:border-green-800",
+        }
+      case "cancelled":
+        return {
+          icon: XCircle,
+          label: "Dibatalkan",
+          color: "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400",
+          borderColor: "border-red-200 dark:border-red-800",
         }
       default:
         return {
@@ -138,7 +229,17 @@ export default function PesananPage() {
         </Link>
       </header>
 
-      {orders.length === 0 ? (
+      {loading ? (
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <p className="text-sm text-muted-foreground">Memuat pesanan...</p>
+        </div>
+      ) : error ? (
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <Package className="h-12 w-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <p className="text-xs text-muted-foreground mt-2">Pastikan Anda sudah login.</p>
+        </div>
+      ) : orders.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-12 text-center">
           <Package className="h-12 w-12 mx-auto mb-3 opacity-40" />
           <p className="text-sm text-muted-foreground">Belum ada pesanan. Mulai belanja sekarang.</p>
@@ -181,6 +282,11 @@ export default function PesananPage() {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Pengiriman: {o.shippingCourier ? o.shippingCourier.toUpperCase() : "-"}
+                        {o.shippingService ? ` • ${o.shippingService}` : ""}
+                        {" "}• Ongkir: Rp {(o.shippingCost || 0).toLocaleString("id-ID")}
                       </p>
                     </div>
                     <div className="text-right">

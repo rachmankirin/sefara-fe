@@ -19,7 +19,7 @@ interface Brand {
   logo_url?: string | { url: string }
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 export default function BrandsPage() {
   const router = useRouter()
@@ -214,8 +214,8 @@ export default function BrandsPage() {
     
     // Handle both absolute and relative URLs
     if (url.startsWith("http")) return url
-    if (url.startsWith("/storage")) return `http://localhost:8000${url}`
-    return `http://localhost:8000/storage/${url}`
+    if (url.startsWith("/storage")) return `https://be.sefara.my.id${url}`
+    return `https://be.sefara.my.id/storage/${url}`
   }
 
   if (loading || pageLoading) {

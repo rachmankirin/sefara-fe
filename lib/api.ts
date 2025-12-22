@@ -2,7 +2,7 @@
 const USE_LARAVEL = true
 
 // #command: Set this ENV in Vars when using Laravel; e.g. https://api.yoursite.com
-const LARAVEL_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const LARAVEL_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 // #command: When not using Laravel, we use internal Next route handlers
 const NEXT_BASE = typeof window !== "undefined" ? "" : ""

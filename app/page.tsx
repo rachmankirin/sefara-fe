@@ -8,8 +8,8 @@ import type { CarouselApi } from "@/components/ui/carousel"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
-const BACKEND_URL = "http://localhost:8000"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
+const BACKEND_URL = "https://be.sefara.my.id"
 
 function slugify(input: string) {
   return input
@@ -191,7 +191,7 @@ export default function HomePage() {
                 Temukan skincare yang cocok untuk kulit kamu.
               </h1>
               <p className="text-pretty opacity-90 animate-fade-in-up delay-300">
-                Glow Mall memudahkan kamu mencari produk dari berbagai kategori. Isi profil kulit untuk skor kecocokan
+                Sefara memudahkan kamu mencari produk dari berbagai kategori. Isi profil kulit untuk skor kecocokan
                 personal.
               </p>
               <div className="flex gap-3 animate-fade-in-up delay-500">
@@ -595,7 +595,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Company Info */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Glow Mall</h3>
+              <h3 className="text-lg font-semibold">Sefara</h3>
               <p className="text-sm opacity-80">
                 Platform terpercaya untuk menemukan produk skincare yang cocok untuk kulit Indonesia.
               </p>
@@ -623,7 +623,7 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/kategori" className="opacity-70 hover:opacity-100 transition-opacity">
+                  <Link href="/produk" className="opacity-70 hover:opacity-100 transition-opacity">
                     Kategori
                   </Link>
                 </li>
@@ -645,17 +645,17 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold">Bantuan</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/bantuan" className="opacity-70 hover:opacity-100 transition-opacity">
+                  <Link href="" className="opacity-70 hover:opacity-100 transition-opacity">
                     Pusat Bantuan
                   </Link>
                 </li>
                 <li>
-                  <Link href="/kontak" className="opacity-70 hover:opacity-100 transition-opacity">
+                  <Link href="" className="opacity-70 hover:opacity-100 transition-opacity">
                     Kontak Kami
                   </Link>
                 </li>
                 <li>
-                  <Link href="/faq" className="opacity-70 hover:opacity-100 transition-opacity">
+                  <Link href="" className="opacity-70 hover:opacity-100 transition-opacity">
                     FAQ
                   </Link>
                 </li>
@@ -667,17 +667,17 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold">Legal</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/privacy" className="opacity-70 hover:opacity-100 transition-opacity">
+                  <Link href="" className="opacity-70 hover:opacity-100 transition-opacity">
                     Kebijakan Privasi
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="opacity-70 hover:opacity-100 transition-opacity">
+                  <Link href="" className="opacity-70 hover:opacity-100 transition-opacity">
                     Syarat & Ketentuan
                   </Link>
                 </li>
                 <li>
-                  <Link href="/return" className="opacity-70 hover:opacity-100 transition-opacity">
+                  <Link href="" className="opacity-70 hover:opacity-100 transition-opacity">
                     Kebijakan Pengembalian
                   </Link>
                 </li>
@@ -688,7 +688,7 @@ export default function HomePage() {
           {/* Bottom Bar */}
           <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
             <p className="text-sm opacity-70">
-              © {new Date().getFullYear()} Glow Mall. All rights reserved.
+              © {new Date().getFullYear()} Sefara. All rights reserved.
             </p>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 function slugify(input: string) {
   return input
@@ -74,7 +74,7 @@ export default function BrandListPage() {
 
   const getImageUrl = (imageUrl?: string) => {
     if (!imageUrl) return "/placeholder.svg"
-    return imageUrl.startsWith("http") ? imageUrl : `http://localhost:8000${imageUrl}`
+    return imageUrl.startsWith("http") ? imageUrl : `https://be.sefara.my.id${imageUrl}`
   }
 
   const getRandomGradient = (index: number) => {

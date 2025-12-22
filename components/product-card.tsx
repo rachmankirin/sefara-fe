@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useAuth } from "@/components/auth/auth-context"
 import { useLocalSWR } from "@/lib/swr-local" // read local reviews
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api"
 
 export function ProductCard({
   product,
@@ -28,7 +28,7 @@ export function ProductCard({
   const effectiveMatch = typeof match === "number" ? match : typeof matchScore === "number" ? matchScore : null
 
   const imageUrl = (() => {
-    const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api").replace("/api", "")
+    const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "https://be.sefara.my.id/api").replace("/api", "")
     const path = product.image_url || product.image
     if (!path) return "/placeholder.svg"
     if (path.startsWith("http")) return path
