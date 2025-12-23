@@ -244,7 +244,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-600 mb-6">
+      <nav className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mb-6">
         <span>Home</span>
         <span>/</span>
         <span>Products</span>
@@ -270,7 +270,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           <div className="space-y-3">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{product.name}</h1>
                 {product.brand && (
                   <p className="text-lg text-gray-600 mt-1">by {product.brand.name}</p>
                 )}
@@ -292,8 +292,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
           {/* Price Section */}
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6">
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold text-gray-900">
+            <div className="flex flex-wrap items-baseline gap-3">
+              <span className="text-3xl md:text-4xl font-bold text-gray-900">
                 Rp {Number(product.price).toLocaleString("id-ID")}
               </span>
               <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-sm font-medium">
@@ -309,17 +309,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
-              onClick={buyNow}
+              onClick={addToCart}
               className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
             >
-              Beli Sekarang
+              Tambah ke Keranjang
             </button>
             <button
               onClick={addToCart}
               disabled={addingToCart}
-              className={`flex items-center gap-2 border-2 border-blue-600 text-blue-600 py-4 px-6 rounded-xl font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 py-4 px-6 rounded-xl font-semibold transition-all ${
                 addingToCart 
                   ? "opacity-50 cursor-not-allowed" 
                   : "hover:bg-blue-50"
@@ -353,8 +353,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
       {/* Product Details Tabs */}
       <div className="mt-12">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+        <div className="border-b border-gray-200 overflow-x-auto">
+          <nav className="-mb-px flex space-x-8 min-w-max">
             {['Deskripsi', 'Bahan Aktif', 'Ulasan'].map((tab) => (
               <button
                 key={tab}
@@ -435,7 +435,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </div>
             ) : product.tags ? (
               <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                <div className="grid grid-cols-2 gap-4 p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6">
                   {product.tags.map((tag: any, index: number) => (
                     <div key={index} className="bg-green-50 rounded-xl p-4">
                       <p className="text-sm text-green-800 font-semibold">{tag.name}</p>

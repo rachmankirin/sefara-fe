@@ -183,33 +183,33 @@ export default function HomePage() {
     <div className="animate-fade-in">
       {/* Hero Section with Animation */}
       <section className="bg-primary text-primary-foreground overflow-hidden">
-        <div className="mx-auto max-w-6xl px-4 py-10 md:py-16">
+        <div className="mx-auto max-w-6xl px-4 py-8 md:py-16">
           <div className="grid md:grid-cols-3 gap-8 items-center">
-            <div className="space-y-4 md:col-span-2 animate-slide-in-left">
-              <p className="text-sm uppercase tracking-wide opacity-80 animate-pulse">Skincare Indonesia</p>
-              <h1 className="text-4xl md:text-5xl font-semibold text-balance animate-fade-in-up">
+            <div className="space-y-4 md:col-span-2 animate-slide-in-left text-center md:text-left">
+              <p className="text-xs md:text-sm uppercase tracking-wide opacity-80 animate-pulse">Skincare Indonesia</p>
+              <h1 className="text-3xl md:text-5xl font-semibold text-balance animate-fade-in-up leading-tight">
                 Temukan skincare yang cocok untuk kulit kamu.
               </h1>
-              <p className="text-pretty opacity-90 animate-fade-in-up delay-300">
+              <p className="text-sm md:text-base text-pretty opacity-90 animate-fade-in-up delay-300 max-w-md mx-auto md:mx-0">
                 Sefara memudahkan kamu mencari produk dari berbagai kategori. Isi profil kulit untuk skor kecocokan
                 personal.
               </p>
-              <div className="flex gap-3 animate-fade-in-up delay-500">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start animate-fade-in-up delay-500 pt-2">
                 <Link
                   href="/produk"
-                  className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 hover:scale-105 transform transition-all duration-300 hover:shadow-lg"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-medium hover:scale-105 transform transition-all duration-300 hover:shadow-lg active:scale-95"
                 >
                   Jelajahi Produk <ArrowRight className="h-4 w-4 animate-bounce-x" />
                 </Link>
                 <Link
                   href="/brand-list"
-                  className="inline-flex items-center gap-2 rounded-full border border-foreground/30 px-4 py-2 hover:scale-105 transform transition-all duration-300 hover:bg-foreground/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-foreground/30 px-6 py-3 text-sm font-medium hover:scale-105 transform transition-all duration-300 hover:bg-foreground/10 active:scale-95"
                 >
                   Semua Brand
                 </Link>
               </div>
             </div>
-            <div className="rounded-xl overflow-hidden border border-border bg-card/50 h-64 md:h-80 animate-slide-in-right">
+            <div className="rounded-xl overflow-hidden border border-border bg-card/50 h-56 md:h-80 animate-slide-in-right mt-4 md:mt-0">
               <img
                 src="/images/skincare-hero.jpg"
                 alt="Ilustrasi produk skincare"
@@ -230,27 +230,28 @@ export default function HomePage() {
         ) : products.length === 0 ? (
           <p className="text-center py-8 opacity-70 animate-fade-in">Belum ada produk tersedia</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {products.slice(0, 4).map((p, index) => (
               <Link
                 key={p.id || p.slug}
                 href={`/produk/${p.slug}`}
-                className="rounded-xl border border-border bg-card p-4 hover:bg-muted transition-all duration-300 hover:scale-105 hover:shadow-xl animate-fade-in-up"
+                className="rounded-xl border border-border bg-card p-3 md:p-4 hover:bg-muted transition-all duration-300 hover:scale-105 hover:shadow-xl animate-fade-in-up flex flex-col h-full"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="aspect-square overflow-hidden rounded-lg bg-muted mb-3 group">
+                <div className="aspect-square overflow-hidden rounded-lg bg-muted mb-3 group relative">
                   <img 
                     src={getImageUrl(p.image_url || p.image)} 
                     alt={p.name} 
                     className="w-full h-full object-cover group-hover:scale-110 transform transition duration-500"
                   />
+                  {/* Mobile quick add button could go here */}
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col justify-between flex-grow gap-2">
                   <div>
-                    <p className="font-medium line-clamp-2 group-hover:text-primary transition-colors">{p.name}</p>
-                    <p className="text-sm opacity-70">{p.category?.name || p.categoryLabel || "Produk"}</p>
+                    <p className="font-medium text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors leading-tight">{p.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{p.category?.name || p.categoryLabel || "Produk"}</p>
                   </div>
-                  <p className="font-semibold text-primary">Rp {Number(p.price).toLocaleString("id-ID")}</p>
+                  <p className="font-semibold text-primary text-sm md:text-base">Rp {Number(p.price).toLocaleString("id-ID")}</p>
                 </div>
               </Link>
             ))}
@@ -278,9 +279,9 @@ export default function HomePage() {
             }}
             className="w-full relative"
           >
-            <CarouselContent className="ml-0">
+            <CarouselContent className="-ml-4">
               {carouselImages.map((image, index) => (
-                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                <CarouselItem key={index} className="pl-4 basis-[85%] md:basis-1/2 lg:basis-1/3">
                   <Link href={`/produk/${image.productSlug}`}>
                     <div
                       className={`transition-all duration-500 ease-out ${getItemScale(index)} ${getItemOpacity(index)} cursor-pointer group`}
@@ -354,7 +355,7 @@ export default function HomePage() {
         <p>Belum ada kategori tersedia</p>
       </div>
     ) : (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 relative z-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 relative z-10">
         {categories.slice(0, 6).map((category, index) => {
           const colors = [
             "from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 border-blue-200/50",
@@ -372,25 +373,19 @@ export default function HomePage() {
             <Link
               key={category.slug || category.id}
               href={`/produk?kategori=${encodeURIComponent(category.slug || category.name)}`}
-              className={`group relative rounded-2xl bg-gradient-to-br ${colorClass} border-2 backdrop-blur-sm p-4 text-center hover:scale-110 transform transition-all duration-500 hover:shadow-2xl animate-fade-in-up hover:z-20`}
+              className={`group relative rounded-2xl bg-gradient-to-br ${colorClass} border-2 backdrop-blur-sm p-3 md:p-4 text-center hover:scale-105 md:hover:scale-110 transform transition-all duration-500 hover:shadow-2xl animate-fade-in-up hover:z-20 active:scale-95`}
               style={{ animationDelay: `${index * 100}ms` }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1) rotate(2deg)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1) rotate(0deg)'
-              }}
             >
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 rounded-2xl transition-all duration-500"></div>
               
               {/* Icon */}
-              <div className="w-12 h-12 rounded-full bg-white/80 shadow-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:rotate-12 transform transition-all duration-500">
-                <span className="text-xl">{icon}</span>
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/80 shadow-lg flex items-center justify-center mx-auto mb-2 md:mb-3 group-hover:scale-110 group-hover:rotate-12 transform transition-all duration-500">
+                <span className="text-lg md:text-xl">{icon}</span>
               </div>
               
               {/* Category Name */}
-              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300 text-sm leading-tight mb-2">
+              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300 text-xs md:text-sm leading-tight mb-1 md:mb-2 line-clamp-2">
                 {category.name}
               </h3>
 
@@ -406,7 +401,7 @@ export default function HomePage() {
     <div className="text-center mt-8 relative z-10">
       <Link
         href="/produk"
-        className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-3 hover:scale-105 transform transition-all duration-300 hover:shadow-xl group"
+        className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-8 py-4 text-sm md:text-base hover:scale-105 transform transition-all duration-300 hover:shadow-xl group active:scale-95"
       >
         <span className="font-semibold">Lihat Semua Kategori</span>
         <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -543,20 +538,20 @@ export default function HomePage() {
           ) : brands.length === 0 ? (
             <p className="text-center py-12 opacity-70 animate-fade-in">Belum ada brand tersedia</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
               {brands.slice(0, 6).map((brand, index) => (
                 <Link
                   key={brand.id}
                   href={`/brand-list/${slugify(brand.name)}`}
                   className="group"
                 >
-                  <Card className="aspect-square bg-muted/50 hover:bg-card transition-all duration-300 border border-border hover:shadow-xl rounded-2xl overflow-hidden group-hover:scale-110">
+                  <Card className="aspect-square bg-muted/50 hover:bg-card transition-all duration-300 border border-border hover:shadow-xl rounded-2xl overflow-hidden group-hover:scale-105 active:scale-95">
                     <CardContent className="p-0 h-full flex flex-col items-center justify-center relative">
                       {/* Background Gradient */}
                       <div className={`absolute inset-0 bg-gradient-to-br ${getRandomGradient(index)} opacity-10 group-hover:opacity-20 transition-opacity`}></div>
                       
                       {/* Brand Logo */}
-                      <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 bg-white rounded-2xl shadow-lg border border-border overflow-hidden p-3 z-10">
+                      <div className="w-16 h-16 md:w-24 md:h-24 flex-shrink-0 bg-white rounded-2xl shadow-lg border border-border overflow-hidden p-2 md:p-3 z-10">
                         <img
                           src={getImageUrl(brand.logo_url) || "/placeholder.svg"}
                           alt={`${brand.name} logo`}
@@ -565,14 +560,14 @@ export default function HomePage() {
                       </div>
                       
                       {/* Brand Name */}
-                      <div className="mt-4 text-center z-10 px-2">
-                        <h4 className="font-semibold text-gray-900 group-hover:text-primary transition-colors text-sm md:text-base">
+                      <div className="mt-3 md:mt-4 text-center z-10 px-2 w-full">
+                        <h4 className="font-semibold text-gray-900 group-hover:text-primary transition-colors text-xs md:text-base truncate w-full">
                           {brand.name}
                         </h4>
                         <div className="flex items-center justify-center gap-1 mt-1">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs text-gray-600">
-                            {getProductCount(brand)}
+                          <span className="text-[10px] md:text-xs text-gray-600">
+                            {getProductCount(brand)} Produk
                           </span>
                         </div>
                       </div>
