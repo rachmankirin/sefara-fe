@@ -255,8 +255,6 @@ export default function ProdukPage() {
           <option value="relevan">Relevan</option>
           <option value="harga-asc">Harga termurah</option>
           <option value="harga-desc">Harga termahal</option>
-          <option value="skor-desc">Skin Score tertinggi</option>
-          <option value="skor-asc">Skin Score terendah</option>
         </select>
 
         <Link
