@@ -646,14 +646,10 @@ export default function KeranjangPage() {
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {[
-                  { value: "sicepat", label: "SICEPAT" },
                   { value: "jnt", label: "J&T" },
-                  { value: "ninja", label: "Ninja Express" },
                   { value: "jne", label: "JNE" },
-                  { value: "anteraja", label: "Anteraja" },
                   { value: "pos", label: "POS Indonesia" },
                   { value: "tiki", label: "Tiki" },
-                  { value: "wahana", label: "Wahana" },
                   { value: "lion", label: "Lion Parcel" },
                 ].map((courier) => (
                   <div key={courier.value} className="flex items-center">
